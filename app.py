@@ -1,13 +1,15 @@
 from flask import Flask
 from flask import request  # 用来获取浏览器传过来的请求参数
 from flask import render_template
+from flask import jsonify  # 转字符串用的
+import utils
 
 app = Flask(__name__)
 
 
 @app.route('/')  # 这里我是直接改写了跟路径的访问
 def index():
-    return render_template('index.html')
+    return render_template('main.html')
 
 
 @app.route('/ajax', methods=["get", "post"])
@@ -16,6 +18,24 @@ def ajax_():
     score = request.values.get("score")
     print(f"name:{name},score:{score}")
     return "10000"
+
+
+@app.route('/time')
+def get_time():
+    return utils.get_time()
+
+
+@app.route('/center_top')
+def get_center_top_data():
+    tup = utils.get_connect(utils.link_config)
+    data = utils.get_center_top_data(tup)
+    json_ = {
+        "confirm": data[0],
+        "suspect": data[1],
+        "heal": data[2],
+        "dead": data[3]
+    }
+    return jsonify(json_)
 
 
 # @app.route('/login')  # 注册一个函数
