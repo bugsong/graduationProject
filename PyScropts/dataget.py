@@ -1,3 +1,5 @@
+import re
+
 import requests
 import json
 import time
@@ -54,7 +56,29 @@ def get_tencent_data():
     return history, details
 
 
+def get_baidu_data():
+    url = "https://top.baidu.com/board"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0",
+    }
+    params = {
+        "tab": "realtime",
+    }
+    response = requests.get(url=url, headers=headers, params=params)
+    obj_title = re.compile(r'<div class="c-single-text-ellipsis">(?P<title>.*?)</div>'
+                           r'.*?<div class="hot-index_1Bl1a">(?P<number>.*?)</div>', re.S)
+    titles = obj_title.finditer(response.text)
+    lst = []
+    for title in titles:
+        data = title.group("title") + title.group("number")
+        lst.append(data.replace(' ', ''))
+    response.close()
+    return lst
+
+
 if __name__ == '__main__':
-    for k, v in get_tencent_data()[0].items():
-        print(k, v)
+    # for k, v in get_tencent_data()[0].items():
+    #     print(k, v)
     # get_tencent_data()[0].keys()  # 经过人工排错,少了一个datetime或许history的keys就是datetime
+    lst = get_baidu_data()
+    print(lst)

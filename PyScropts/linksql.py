@@ -147,6 +147,25 @@ def update_history(get_tencent_data, get_connect_ret, close_conn):
         close_conn(conn, cursor)
 
 
+def update_hotsearch(get_baidu_data, get_connect_ret, close_conn):
+    cursor = None
+    conn = None
+    try:
+        context = get_baidu_data()  # 承接百度返回的数据
+        print(f"{time.asctime()}开始更新热搜数据")
+        conn, cursor = get_connect_ret  # 返回值元组
+        sql = "insert into hotsearch(dt,content) values (%s,%s)"  # 指定列数句
+        ts = time.strftime("%Y-%m-%d %X")
+        for i in context:
+            cursor.execute(sql, (ts, i))  # 插入数据
+        conn.commit()  # 提交事务
+        print(f"{time.asctime()}热搜数据更新完毕")
+    except:
+        traceback.print_exc()
+    finally:
+        close_conn(conn, cursor)
+
+
 if __name__ == '__main__':
     # 链接配置
     link_config = {
@@ -161,5 +180,8 @@ if __name__ == '__main__':
     # insert_history(get_tencent_data, connect_ret, close_connect)  # 初次插入历史数据
     # update_history(get_tencent_data, connect_ret, close_connect)  # 要理解为什么写函数名
     # insert_details(get_tencent_data, connect_ret, close_connect)
-    update_details(get_tencent_data, connect_ret, close_connect)  # 忘了,第一遍应该先插入
-    # 以上四个均不能一起开,因为每个函数执行完会关闭链接和游标
+    # update_details(get_tencent_data, connect_ret, close_connect)  # 忘了,第一遍应该先插入
+
+    # 以下是热搜部分
+    # update_hotsearch(get_baidu_data, connect_ret, close_connect)
+    # 以上均不能一起开,因为每个函数执行完会关闭链接和游标
