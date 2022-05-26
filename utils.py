@@ -103,6 +103,29 @@ def get_left_bottom_data(get_conn_tup):
     return res
 
 
+def get_right_top_data(get_conn_tup):
+    _tup = get_conn_tup
+    sql = 'select city,confirm from ' \
+          '(select city,confirm from details ' \
+          'where update_time=(select update_time from details order by update_time desc limit 1) ' \
+          'and province not in ("湖北","北京","上海","天津","重庆") ' \
+          'union all ' \
+          'select province as city,sum(confirm) as confirm from details ' \
+          'where update_time=(select update_time from details order by update_time desc limit 1) ' \
+          'and province in ("北京","上海","天津","重庆") group by province) as a ' \
+          'where city <> "地区待确认" and city <> "境外输入" ' \
+          'order by confirm desc limit 5'
+    res = query(sql=sql, get_conn_tup=_tup)
+    return res
+
+
+def get_right_bottom_data(get_conn_tup):
+    _tup = get_conn_tup
+    sql = "select content from hotsearch order by id desc limit 20"
+    res = query(sql=sql, get_conn_tup=_tup)
+    return res
+
+
 if __name__ == '__main__':
     print(get_time())
     # 以下在网站调用时需要
@@ -111,7 +134,9 @@ if __name__ == '__main__':
 
     # print(get_center_top_data(tup))
     # print(get_center_bottom_data(tup))
-    print(get_left_top_data(tup))
-    print(get_left_bottom_data(tup))
+    # print(get_left_top_data(tup))
+    # print(get_left_bottom_data(tup))
+    # print(get_right_top_data(tup))
+    print(get_right_bottom_data(tup))
     close_connect(tup[0], tup[1])
     # 需要独自设计关闭操作
