@@ -132,7 +132,7 @@ def update_history(get_tencent_data, get_connect_ret, close_conn):
     conn = None
     try:
         dic = get_tencent_data()[0]  # 历史字典数据
-        print(dic)
+        # print(dic)
         print(f"{time.asctime()}开始更新历史数据")
         conn, cursor = get_connect_ret  # 返回值元组
         sql = "insert into history values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # 9个
@@ -181,10 +181,10 @@ if __name__ == '__main__':
     }
     connect_ret = get_connect(link_config)  # 这个直接集成在各个函数的参数里了考虑要不要分离出来,分离出来其他函数就能去掉个参数
     # insert_history(get_tencent_data, connect_ret, close_connect)  # 初次插入历史数据
-    update_history(get_tencent_data, connect_ret, close_connect)  # 要理解为什么写函数名
+    # update_history(get_tencent_data, connect_ret, close_connect)  # 要理解为什么写函数名
     # insert_details(get_tencent_data, connect_ret, close_connect)
     # update_details(get_tencent_data, connect_ret, close_connect)  # 忘了,第一遍应该先插入
 
     # 以下是热搜部分
-    # update_hotsearch(get_baidu_data, connect_ret, close_connect)
+    update_hotsearch(get_baidu_data, connect_ret, close_connect)
     # 以上均不能一起开,因为每个函数执行完会关闭链接和游标
