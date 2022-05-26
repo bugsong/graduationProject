@@ -79,12 +79,23 @@ def get_center_top_data(get_conn_tup):
     return res[0]
 
 
+def get_center_bottom_data(get_conn_tup):
+    _tup = get_conn_tup
+    sql = "select province,sum(confirm) from details " \
+          "where update_time=(select update_time from details " \
+          "order by update_time desc limit 1) " \
+          "group by province"
+    res = query(sql=sql, get_conn_tup=_tup)
+    return res
+
+
 if __name__ == '__main__':
     print(get_time())
     # 以下在网站调用时需要
     tup = get_connect(link_config)
     # 以上在网站调用时需要
 
-    print(get_center_top_data(tup))
+    # print(get_center_top_data(tup))
+    print(get_center_bottom_data(tup))
     close_connect(tup[0], tup[1])
     # 需要独自设计关闭操作

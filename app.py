@@ -12,14 +12,6 @@ def index():
     return render_template('main.html')
 
 
-@app.route('/ajax', methods=["get", "post"])
-def ajax_():
-    name = request.values.get("name")
-    score = request.values.get("score")
-    print(f"name:{name},score:{score}")
-    return "10000"
-
-
 @app.route('/time')
 def get_time():
     return utils.get_time()
@@ -38,26 +30,16 @@ def get_center_top_data():
     return jsonify(json_)
 
 
-# @app.route('/login')  # 注册一个函数
-# def login():
-#     name = request.values.get("name")
-#     pwd = request.values.get("pwd")
-#     return f"""
-#         name={name},pwd={pwd}
-#     """
-
-
-# @app.route('/')
-# def hello_world():  # put application's code here
-#     id = request.values.get("id")
-#     # 那么在输入时,可以在地址栏使用get传参方式,使之获取到数据
-#     return f"""
-#     <form action="/login">
-#         帐号:<input name="name" value="{id}"/><br/>
-#         密码:<input name="pwd" />
-#         <input type="submit">
-#     </form>
-#     """
+@app.route('/center_bottom')
+def get_center_bottom_data():
+    tup = utils.get_connect(utils.link_config)
+    data = utils.get_center_bottom_data(tup)
+    print(data)
+    res = []
+    for tup_ in data:
+        res.append({"name": tup_[0], "value": int(tup_[1])})
+        # 处理成前端对应的格式
+    return jsonify({"data": res})
 
 
 if __name__ == '__main__':
