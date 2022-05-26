@@ -36,6 +36,33 @@ def close_connect(conn, csr):
         conn.close()
 
 
+def insert_details(get_tencent_data, get_connect_ret, close_conn):
+    """
+    插入最新疫情数据
+    :param get_tencent_data: 从腾讯疫情获取的数据
+    :param get_connect_ret: 获取链接和游标
+    :param close_conn: 关闭游标和链接
+    :return:none
+    """
+    cursor = None
+    connect = None
+    try:
+        lst = get_tencent_data()[1]  # 读取历史数据列表
+        print(f"{time.asctime()}开始插入最新数据")
+        connect, cursor = get_connect_ret  # 此处接收的是函数的返回值,为一个元组
+        sql = "insert into details(update_time,province,city,confirm,confirm_add,heal,dead) " \
+              "values(%s,%s,%s,%s,%s,%s,%s)"
+        for v in lst:
+            # item 格式 {'2022-01-03':{'confirm':41,'suspect':0,'heal':0,'dead':1}}
+            cursor.execute(sql, [v[0], v[1], v[2], v[3], v[4], v[5], v[6], ])
+        connect.commit()  # 只要不是单纯查询都得提交事务
+        print(f"{time.asctime()}插入最新数据完毕")
+    except:
+        traceback.print_exc()
+    finally:
+        close_conn(connect, cursor)
+
+
 def update_details(get_tencent_data, get_connect_ret, close_conn):
     """
     更新最新数据
@@ -49,7 +76,8 @@ def update_details(get_tencent_data, get_connect_ret, close_conn):
     try:
         li = get_tencent_data()[1]  # 0是历史数据字典,1是最新详细数据列表
         connect, cursor = get_connect_ret
-        sql = "insert into details(update_time,province,city,confirm,confirm_add,heal,dead) values(%s,%s,%s,%s,%s,%s,%s)"
+        sql = "insert into details(update_time,province,city,confirm,confirm_add,heal,dead) " \
+              "values(%s,%s,%s,%s,%s,%s,%s)"
         sql_query = 'select %s=(select update_time from details order by id desc limit 1)'  # 对比当前最大时间戳
         cursor.execute(sql_query, li[0][0])
         if not cursor.fetchone()[0]:
@@ -60,33 +88,6 @@ def update_details(get_tencent_data, get_connect_ret, close_conn):
             print(f"{time.asctime()}更新最新数据完毕")
         else:
             print(f"{time.asctime()}已是最新数据!")
-    except:
-        traceback.print_exc()
-    finally:
-        close_conn(connect, cursor)
-
-
-def insert_details(get_tencent_data, get_connect_ret, close_conn):
-    """
-    插入最新疫情数据
-    :param get_tencent_data: 从腾讯疫情获取的数据
-    :param get_connect_ret: 获取链接和游标
-    :param close_conn: 关闭游标和链接
-    :return:none
-    """
-    cursor = None
-    connect = None
-    try:
-        dic = get_tencent_data()[0]  # 读取历史数据字典
-        print(f"{time.asctime()}开始插入历史数据")
-        connect, cursor = get_connect_ret  # 此处接收的是函数的返回值,为一个元组
-        sql = "insert into history values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # 9个
-        for k, v in dic.items():
-            # item 格式 {'2022-01-03':{'confirm':41,'suspect':0,'heal':0,'dead':1}}
-            cursor.execute(sql, [k, v.get("confirm"), v.get("confirm_add"), v.get("suspect"), v.get("suspect_add"),
-                                 v.get("heal"), v.get("heal_add"), v.get("dead"), v.get("dead_add")])
-        connect.commit()  # 只要不是单纯查询都得提交事务
-        print(f"{time.asctime()}插入历史数据完毕")
     except:
         traceback.print_exc()
     finally:
@@ -131,11 +132,13 @@ def update_history(get_tencent_data, get_connect_ret, close_conn):
     conn = None
     try:
         dic = get_tencent_data()[0]  # 历史字典数据
+        print(dic)
         print(f"{time.asctime()}开始更新历史数据")
         conn, cursor = get_connect_ret  # 返回值元组
         sql = "insert into history values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # 9个
         sql_query = "select confirm from history where ds=%s"
         for k, v in dic.items():
+            # print(k,v)  # 是上层的confirm_add没有传递过来
             if not cursor.execute(sql_query, k):
                 cursor.execute(sql, [k, v.get("confirm"), v.get("confirm_add"), v.get("suspect"), v.get("suspect_add"),
                                      v.get("heal"), v.get("heal_add"), v.get("dead"), v.get("dead_add")])
@@ -178,7 +181,7 @@ if __name__ == '__main__':
     }
     connect_ret = get_connect(link_config)  # 这个直接集成在各个函数的参数里了考虑要不要分离出来,分离出来其他函数就能去掉个参数
     # insert_history(get_tencent_data, connect_ret, close_connect)  # 初次插入历史数据
-    # update_history(get_tencent_data, connect_ret, close_connect)  # 要理解为什么写函数名
+    update_history(get_tencent_data, connect_ret, close_connect)  # 要理解为什么写函数名
     # insert_details(get_tencent_data, connect_ret, close_connect)
     # update_details(get_tencent_data, connect_ret, close_connect)  # 忘了,第一遍应该先插入
 

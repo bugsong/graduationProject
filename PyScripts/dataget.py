@@ -3,6 +3,7 @@ import re
 import requests
 import json
 import time
+import datetime
 
 
 def get_tencent_data():
@@ -11,8 +12,7 @@ def get_tencent_data():
     :return: 返回历史数据和当日详细数据
     """
     url = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?" \
-          "modules=localCityNCOVDataList,diseaseh5Shelf," \
-          "chinaDayList,chinaDayAddList,nowConfirmStatis,provinceCompare"
+          "modules=diseaseh5Shelf,chinaDayList,chinaDayAddList,provinceCompare"
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0", }
     response = requests.post(url=url, headers=headers)
     data_all = json.loads(response.text)  # json字符串转换为字典
@@ -26,18 +26,30 @@ def get_tencent_data():
         suspect = i["suspect"]
         heal = i["heal"]
         dead = i["dead"]
+        # print(f"no add {ds}")
         history[ds] = {"confirm": confirm, "suspect": suspect, "heal": heal, "dead": dead}
-        # print(history[ds])  # 获取没有问题,问题应该出在了写入
-
-    for t in data_all["data"]["chinaDayAddList"]:
-        ds = "2022." + i["date"]
-        tup = time.strptime(ds, "%Y.%m.%d")
+        # print(history[ds])  # 字典的拼接出现了一点问题
+    flag = True
+    for dct in data_all["data"]["chinaDayAddList"]:
+        if flag:
+            flag = False
+            continue  # 使之开始统计日期与上边同步
+        ds = "2022." + dct["date"]  # 惊天大bug,整了半天就一条数据,是因为日期没有指定更新
+        tup = time.strptime(ds, "%Y.%m.%d")  # 获取的时间出了问题
         ds = time.strftime("%Y-%m-%d", tup)  # 改变时间格式,以便插入数据库,datetime类型
-        confirm = t["confirm"]
-        suspect = t["suspect"]
-        heal = t["heal"]
-        dead = t["dead"]
-        history[ds].update({"confirm_add": confirm, "suspect_add": suspect, "heal_add": heal, "dead_add": dead})
+        #  修正时间
+        # dt = datetime.datetime.strptime(ds, "%Y-%m-%d")
+        # ds = (dt + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        # 修了半天,发现存在位移现象,还得修改尾巴,那么直接做切片使之对等好了
+        confirm_add = dct['localConfirmadd']  # 更新部分,获取数据方法变更
+        # print(confirm_add)
+        suspect_add = dct["suspect"]
+        heal_add = dct["heal"]
+        dead_add = dct["dead"]
+        # print(f"add {ds}")  # 新增统计在后一天统计,所以需要给新增统计加1天
+        history[ds].update(
+            {"confirm_add": confirm_add, "suspect_add": suspect_add, "heal_add": heal_add, "dead_add": dead_add})
+        # print(history[ds])  # 输出到最后,也只保留到了最后一行,又研究一番,发现是时间的问题
 
     details = []  # 当日详细数据
     update_time = data_all["data"]["diseaseh5Shelf"]["lastUpdateTime"]
@@ -80,5 +92,8 @@ if __name__ == '__main__':
     # for k, v in get_tencent_data()[0].items():
     #     print(k, v)
     # get_tencent_data()[0].keys()  # 经过人工排错,少了一个datetime或许history的keys就是datetime
-    lst = get_baidu_data()
-    print(lst)
+    for v in get_tencent_data()[0].values():
+        print(v)
+        pass
+    # lst = get_baidu_data()
+    # print(lst)
