@@ -67,12 +67,18 @@ def get_left_top_data():
 def get_left_bottom_data():
     tup = utils.get_connect(utils.link_config)
     data = utils.get_left_bottom_data(tup)
-    print(data)
-    res = []
-    for tup_ in data:
-        res.append({"name": tup_[0], "value": int(tup_[1])})
+    day, confirm_add, suspect_add = [], [], []
+    for d, c, s in data[7:]:
+        day.append(d.strftime("%m-%d"))
+        confirm_add.append(c)
+        suspect_add.append(s)
         # 处理成前端对应的格式
-    return jsonify({"data": res})
+    json_ = {
+        "day": day,
+        "confirm_add": confirm_add,
+        "suspect_add": suspect_add,
+    }
+    return jsonify(json_)
 
 
 if __name__ == '__main__':
