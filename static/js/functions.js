@@ -36,8 +36,8 @@ function get_center_bottom_data() {
     $.ajax({
         url: "/center_bottom",
         success: function (data_json_value) {
-            ec_center_option.series[0].data = data_json_value.data;//从后台拿到数据
-            ec_center_selector.setOption(ec_center_option);//丢在option里面重新渲染
+            ec_center_bottom_option.series[0].data = data_json_value.data;//从后台拿到数据
+            ec_center_bottom_selector.setOption(ec_center_bottom_option);//丢在option里面重新渲染
         },
         error: function () {
 
@@ -45,4 +45,23 @@ function get_center_bottom_data() {
     })
 }
 get_center_bottom_data();
-// 渲染一次即可
+// 偷懒渲染一次即可
+
+//左上部分
+function get_left_top_data() {
+    $.ajax({
+        url: "/left_top",
+        success: function (data_json_value) {
+            ec_left_top_option.xAxis[0].data=data_json_value.day
+            ec_left_top_option.series[0].data=data_json_value.confirm
+            ec_left_top_option.series[1].data=data_json_value.suspect
+            ec_left_top_option.series[2].data=data_json_value.heal
+            ec_left_top_option.series[3].data=data_json_value.dead
+            ec_left_top_selector.setOption(ec_left_top_option);//丢在option里面重新渲染
+        },
+        error: function () {
+
+        }
+    })
+}
+get_left_top_data();

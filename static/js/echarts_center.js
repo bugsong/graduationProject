@@ -1,7 +1,7 @@
-var ec_center_selector = echarts.init(document.getElementById("center_bottom"), "dark");
+var ec_center_bottom_selector = echarts.init(document.getElementById("center_bottom"), "dark");
 var mydata = [{ 'name': '西藏', 'value': 318 }, { 'name': '新疆', 'value': 162 }];
 
-var ec_center_option = {
+var ec_center_bottom_option = {
     title: {
         text: '',
         subtext: '',
@@ -57,4 +57,4 @@ var ec_center_option = {
 
     }]
 };
-ec_center_selector.setOption(ec_center_option);
+ec_center_bottom_selector.setOption(ec_center_bottom_option);

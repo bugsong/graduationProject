@@ -89,6 +89,20 @@ def get_center_bottom_data(get_conn_tup):
     return res
 
 
+def get_left_top_data(get_conn_tup):
+    _tup = get_conn_tup
+    sql = "select ds,confirm,suspect,heal,dead from history"
+    res = query(sql=sql, get_conn_tup=_tup)
+    return res
+
+
+def get_left_bottom_data(get_conn_tup):
+    _tup = get_conn_tup
+    sql = "select ds,confirm_add,suspect_add from history"
+    res = query(sql=sql, get_conn_tup=_tup)
+    return res
+
+
 if __name__ == '__main__':
     print(get_time())
     # 以下在网站调用时需要
@@ -96,6 +110,8 @@ if __name__ == '__main__':
     # 以上在网站调用时需要
 
     # print(get_center_top_data(tup))
-    print(get_center_bottom_data(tup))
+    # print(get_center_bottom_data(tup))
+    print(get_left_top_data(tup))
+    print(get_left_bottom_data(tup))
     close_connect(tup[0], tup[1])
     # 需要独自设计关闭操作
