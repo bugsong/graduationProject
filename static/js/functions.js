@@ -1,3 +1,19 @@
+//定义统一的刷新频率
+fresh_all_except_time();
+
+function fresh_all_except_time() {
+    get_center_top_data();
+    get_center_bottom_data();
+    get_left_top_data();
+    get_left_bottom_data();
+    get_right_bottom_data();
+    get_right_top_data();
+
+}
+
+setInterval(fresh_all_except_time, 10000)  //每隔多少毫秒刷新一次
+
+
 //时间更新部分
 function get_time() {
     $.ajax({
@@ -13,6 +29,7 @@ function get_time() {
 }
 
 setInterval(get_time, 1000)
+
 //中间数字部分
 function get_center_top_data() {
     $.ajax({
@@ -29,7 +46,6 @@ function get_center_top_data() {
     })
 }
 
-get_center_top_data();
 
 // 地图数据部分
 function get_center_bottom_data() {
@@ -44,7 +60,7 @@ function get_center_bottom_data() {
         }
     })
 }
-get_center_bottom_data();
+
 // 偷懒渲染一次即可
 
 //左上部分
@@ -64,7 +80,7 @@ function get_left_top_data() {
         }
     })
 }
-get_left_top_data();
+
 
 // 左下部分
 function get_left_bottom_data() {
@@ -82,7 +98,7 @@ function get_left_bottom_data() {
         }
     })
 }
-get_left_bottom_data();
+
 
 // 右上部分
 function get_right_top_data() {
@@ -98,7 +114,7 @@ function get_right_top_data() {
         }
     })
 }
-get_right_top_data();
+
 
 //右下部分
 function get_right_bottom_data() {
@@ -113,4 +129,4 @@ function get_right_bottom_data() {
         }
     })
 }
-get_right_bottom_data();
+
